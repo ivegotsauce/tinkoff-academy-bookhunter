@@ -11,6 +11,32 @@ import java.util.*;
 @Service
 public class UserService {
 
+    private static class PairDistanceUser {
+        private Long distance;
+        private User user;
+
+        public PairDistanceUser(Long distance, User user) {
+            this.distance = distance;
+            this.user = user;
+        }
+
+        public Long getDistance() {
+            return distance;
+        }
+
+        public void setDistance(Long distance) {
+            this.distance = distance;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+        }
+    }
+
     private UserProfile userToProfile(User user) {
         UserProfile profile = new UserProfile();
         profile.setAge(String.valueOf(user.getAge()));
@@ -31,17 +57,19 @@ public class UserService {
             boolean checkId
     ) {
         ArrayList<UserProfile> nearestUsers = new ArrayList<>();
-        TreeMap<Long, User> map = new TreeMap<>();
+        List<PairDistanceUser> list = new ArrayList<>();
+
         for (User user : getUsers()) {
             long dist = distanceInKmBetweenEarthCoordinates(latitude, longitude,
                     user.getLatitude(), user.getLongitude());
-            map.put(dist, user);
+            list.add(new PairDistanceUser(dist, user));
         }
-        for (var entry : map.entrySet()) {
-            if (entry.getKey() > distance) {
+        list.sort(Comparator.comparing(PairDistanceUser::getDistance));
+        for (var p : list) {
+            if (p.getDistance() > distance) {
                 break;
             }
-            User u = entry.getValue();
+            User u = p.getUser();
             if (amount == 0) {
                 break;
             }
@@ -78,6 +106,50 @@ public class UserService {
 
     public List<User> getUsers() {
         return BookHunterApplication.users;
+    }
+
+    public void createUser(UUID id, String nick, String name, long age, User.Gender gender, double latitude,
+                           double longitude) {
+        if (getUserById(id) != null) {
+            System.out.println("User id is already used");
+            return;
+        }
+
+        User user = new User();
+        user.setId(id);
+        user.setNick(nick);
+        user.setName(name);
+        user.setAge(age);
+        user.setGender(gender);
+        user.setLatitude(latitude);
+        user.setLongitude(longitude);
+        getUsers().add(user);
+    }
+
+    public void updateUser(User user) {
+        List<User> users = getUsers();
+        int i = users.indexOf(user);
+        if (i == -1) {
+            System.out.println("No such user");
+            return;
+        }
+        users.set(i, user);
+    }
+
+    public void deleteUser(UUID id) {
+        List<User> users = getUsers();
+        int i = -1;
+        for (int j = 0; j < users.size(); j++) {
+            if (users.get(j).getId() == id) {
+                i = j;
+                break;
+            }
+        }
+        if (i == -1) {
+            System.out.println("No such user");
+            return;
+        }
+        users.remove(i);
     }
 
 

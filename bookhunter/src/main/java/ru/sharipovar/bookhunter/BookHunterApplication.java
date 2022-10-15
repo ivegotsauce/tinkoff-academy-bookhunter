@@ -10,7 +10,7 @@ import java.util.*;
 @SpringBootApplication
 public class BookHunterApplication {
 
-    public static ArrayList<User> users = new ArrayList<>();
+    public static List<User> users = new LinkedList<>();
 
 	public static void main(String[] args) {
         Random random = new Random();
