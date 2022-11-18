@@ -2,6 +2,13 @@ package ru.sharipovar.bookhunter.domain;
 
 
 public class UserProfile {
+
+    private String nick;
+    private String name;
+    private String age;
+    private String gender;
+    private String location;
+
     public String getNick() {
         return nick;
     }
@@ -41,11 +48,5 @@ public class UserProfile {
     public void setLocation(String location) {
         this.location = location;
     }
-
-    private String nick;
-    private String name;
-    private String age;
-    private String gender;
-    private String location;
 
 }
