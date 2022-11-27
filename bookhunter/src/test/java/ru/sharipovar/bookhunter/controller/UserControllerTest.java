@@ -18,7 +18,6 @@ public class UserControllerTest {
     private UserService userService;
     private final Random random = new Random();
     private static final long equatorLength = (long) 40e6;
-    private static final long amount = 50;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -30,52 +29,52 @@ public class UserControllerTest {
         user = users.get(random.nextInt(users.size()));
     }
 
-    private void whenGetNearestByCoordinates(long distance) {
+    private void whenGetNearestByCoordinates() {
         responseSpec = webTestClient.get().uri(
                         uriBuilder -> uriBuilder
                                 .path("/user/nearest")
                                 .queryParam("latitude", user.getLatitude())
                                 .queryParam("longitude", user.getLongitude())
-                                .queryParam("distance", distance)
+                                .queryParam("distance", equatorLength)
                                 .build()
                 )
                 .exchange();
     }
 
-    private void whenGetNearestById(long distance) {
+    private void whenGetNearestById() {
         responseSpec = webTestClient.get().uri(
                         uriBuilder -> uriBuilder
                                 .path("/user/{id}/nearest")
-                                .queryParam("distance", distance)
+                                .queryParam("distance", equatorLength)
                                 .build(user.getId())
                 )
                 .exchange();
     }
 
-    private void thenResponseShouldContain(long n) {
-        responseSpec.expectStatus().is2xxSuccessful().expectBody().jsonPath("$.length()").isEqualTo(n);
+    private void thenResponseShouldContainJson() {
+        responseSpec.expectAll(
+                rSpec -> rSpec.expectStatus().is2xxSuccessful(),
+                rSpec -> rSpec.expectBody().jsonPath("$[0].nick").exists()
+                        .jsonPath("$[0].name").exists()
+                        .jsonPath("$[0].age").exists()
+                        .jsonPath("$[0].gender").exists()
+                        .jsonPath("$[0].location").exists()
+        );
+
     }
 
     @Test
     public void testGetNearestById() {
         givenUser();
-        whenGetNearestById(0);
-        thenResponseShouldContain(0);
-
-        givenUser();
-        whenGetNearestById(equatorLength);
-        thenResponseShouldContain(amount);
+        whenGetNearestById();
+        thenResponseShouldContainJson();
     }
 
     @Test
     public void testGetNearestByCoordinates() {
         givenUser();
-        whenGetNearestByCoordinates(0);
-        thenResponseShouldContain(1);
-
-        givenUser();
-        whenGetNearestByCoordinates(equatorLength);
-        thenResponseShouldContain(amount);
+        whenGetNearestByCoordinates();
+        thenResponseShouldContainJson();
     }
 
 
