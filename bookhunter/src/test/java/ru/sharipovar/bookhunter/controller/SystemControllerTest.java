@@ -1,23 +1,13 @@
 package ru.sharipovar.bookhunter.controller;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
 
 @AutoConfigureWebTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class SpringProbesControllerTest {
-
-    @Autowired
-    private WebTestClient webTestClient;
-    private WebTestClient.ResponseSpec responseSpec;
-
-    private void whenDoRequest(String path) {
-        responseSpec = webTestClient.get().uri(path).exchange();
-    }
+public class SystemControllerTest extends BaseControllerTest {
 
     private void thenShouldResponse(String response) {
         responseSpec.expectStatus().is2xxSuccessful().expectBody(String.class).isEqualTo(response);
