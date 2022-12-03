@@ -1,15 +1,29 @@
 package ru.sharipovar.bookhunter.domain;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import java.sql.Date;
 import java.util.UUID;
 
+@Entity
+@Table(name = "user", schema = "public", uniqueConstraints = @UniqueConstraint(columnNames = "nick"))
 public class User {
 
+    @Id
     private UUID id;
+    @NotEmpty
     private String nick;
+    @NotEmpty
     private String name;
-    private Long age;
+    @NotEmpty
+
+    private Date dateOfBirth;
+    @NotEmpty
+    @Enumerated(EnumType.STRING)
     private Gender gender;
+    @NotEmpty
     private double latitude;
+    @NotEmpty
     private double longitude;
 
     public enum Gender {
@@ -51,14 +65,6 @@ public class User {
         this.name = name;
     }
 
-    public Long getAge() {
-        return age;
-    }
-
-    public void setAge(Long age) {
-        this.age = age;
-    }
-
     public Gender getGender() {
         return gender;
     }
@@ -74,6 +80,14 @@ public class User {
 
     public UUID getId() {
         return id;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
 

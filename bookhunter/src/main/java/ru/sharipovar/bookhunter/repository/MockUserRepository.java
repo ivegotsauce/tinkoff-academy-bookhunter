@@ -4,7 +4,7 @@ import ru.sharipovar.bookhunter.domain.User;
 
 import java.util.List;
 
-public class MockUserRepository implements UserRepository{
+public class MockUserRepository {
 
     private final List<User> users;
 
@@ -14,7 +14,6 @@ public class MockUserRepository implements UserRepository{
         this.users = users;
     }
 
-    @Override
     public List<User> findAll() {
         return users;
     }
