@@ -7,7 +7,10 @@ import ru.sharipovar.bookhunter.domain.User;
 import ru.sharipovar.bookhunter.domain.UserProfile;
 import ru.sharipovar.bookhunter.repository.UserRepository;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
+import java.sql.Date;
 
 @Service
 public class UserService {
@@ -44,7 +47,8 @@ public class UserService {
 
     private UserProfile userToProfile(User user) {
         UserProfile profile = new UserProfile();
-        profile.setAge(String.valueOf(user.getAge()));
+        profile.setAge(String.valueOf(Period.between(user.getDateOfBirth().toLocalDate(),
+                LocalDate.now()).getYears()));
         profile.setGender(user.getGender().toString().toLowerCase());
         profile.setLocation(String.join(", ", String.valueOf(user.getLatitude()),
                 String.valueOf(user.getLongitude())));
@@ -64,16 +68,15 @@ public class UserService {
         ArrayList<UserProfile> nearestUsers = new ArrayList<>();
         List<PairDistanceUser> list = new ArrayList<>();
 
-        for (User user : getUsers()) {
+        for (User user : findAll()) {
             long dist = distanceInKmBetweenEarthCoordinates(latitude, longitude,
                     user.getLatitude(), user.getLongitude());
-            list.add(new PairDistanceUser(dist, user));
+            if (dist <= distance) {
+                list.add(new PairDistanceUser(dist, user));
+            }
         }
         list.sort(Comparator.comparing(PairDistanceUser::getDistance));
         for (var p : list) {
-            if (p.getDistance() > distance) {
-                break;
-            }
             User u = p.getUser();
             if (amount == 0) {
                 break;
@@ -105,50 +108,56 @@ public class UserService {
         return ((long) (earthRadiusKm * c));
     }
 
-    public User getUserById(UUID id) {
-        return getUsers().stream().filter(u -> u.getId().equals(id)).findFirst().orElse(null);
+    public User findById(UUID id) {
+        return id == null ? null : userRepository.findById(id).orElse(null);
     }
 
-    public List<User> getUsers() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public void createUser(UUID id, String nick, String name, long age, User.Gender gender, double latitude,
+    public void createUser(UUID id, String nick, String name, Date dateOfBirth, User.Gender gender, double latitude,
                            double longitude) {
-        if (getUserById(id) != null) {
+        if (findById(id) != null) {
             System.out.println("User id is already used");
             return;
         }
 
-        User user = constructUser(id, nick, name, age, gender, latitude, longitude);
-        getUsers().add(user);
+        User user = constructUser(id, nick, name, dateOfBirth, gender, latitude, longitude);
+        userRepository.save(user);
     }
 
-    public static User constructUser(UUID id, String nick, String name, long age, User.Gender gender, double latitude,
+    public static User constructUser(UUID id, String nick, String name, Date dateOfBirth, User.Gender gender, double latitude,
                                      double longitude) {
         User user = new User();
         user.setId(id);
         user.setNick(nick);
         user.setName(name);
-        user.setAge(age);
+        user.setDateOfBirth(dateOfBirth);
         user.setGender(gender);
         user.setLatitude(latitude);
         user.setLongitude(longitude);
         return user;
     }
 
-    public void updateUser(User user) {
-        List<User> users = getUsers();
-        int i = users.indexOf(user);
-        if (i == -1) {
+    public void updateUser(UUID id, String nick, String name, Date dateOfBirth, User.Gender gender, double latitude,
+                           double longitude) {
+
+        if (findById(id) == null) {
             System.out.println("No such user");
             return;
         }
-        users.set(i, user);
+        userRepository.setUserInfoById(id, nick, name, dateOfBirth, gender, latitude, longitude);
     }
 
     public void deleteUser(UUID id) {
-        getUsers().removeIf(u -> u.getId().equals(id));
+
+        User user = findById(id);
+        if (user == null) {
+            System.out.println("No such user");
+            return;
+        }
+        userRepository.delete(user);
     }
 
 

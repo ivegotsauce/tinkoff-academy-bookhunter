@@ -26,7 +26,7 @@ public class UserController {
             @RequestParam(required = false, defaultValue = "100") Long distance,
             @RequestParam(required = false, defaultValue = "50") Long amount
     ) {
-        User user = userService.getUserById(id);
+        User user = userService.findById(id);
         if (user == null) {
             return Flux.just();
         }

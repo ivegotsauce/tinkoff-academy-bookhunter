@@ -20,7 +20,7 @@ public class UserControllerTest extends BaseControllerTest {
     private User user;
 
     private void givenUser() {
-        var users = userService.getUsers();
+        var users = userService.findAll();
         user = users.get(random.nextInt(users.size()));
     }
 
