@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/system")
-public class SpringProbesController {
+public class SystemController {
     @Autowired
     private ApplicationContext context;
     private final String URL = "http://localhost:8080";
