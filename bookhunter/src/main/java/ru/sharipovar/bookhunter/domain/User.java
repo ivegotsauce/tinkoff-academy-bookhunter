@@ -3,11 +3,6 @@ package ru.sharipovar.bookhunter.domain;
 import java.util.UUID;
 
 public class User {
-    public enum Gender {
-        MALE,
-        FEMALE,
-        HIDDEN
-    }
 
     private UUID id;
     private String nick;
@@ -16,6 +11,12 @@ public class User {
     private Gender gender;
     private double latitude;
     private double longitude;
+
+    public enum Gender {
+        MALE,
+        FEMALE,
+        HIDDEN
+    }
 
     public double getLatitude() {
         return latitude;
@@ -32,7 +33,6 @@ public class User {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
 
 
     public String getNick() {

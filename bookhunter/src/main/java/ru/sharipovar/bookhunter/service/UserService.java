@@ -1,15 +1,20 @@
 package ru.sharipovar.bookhunter.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import ru.sharipovar.bookhunter.BookHunterApplication;
 import ru.sharipovar.bookhunter.domain.User;
 import ru.sharipovar.bookhunter.domain.UserProfile;
+import ru.sharipovar.bookhunter.repository.UserRepository;
 
 import java.util.*;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
 
     private static class PairDistanceUser {
         private Long distance;
@@ -97,7 +102,7 @@ public class UserService {
         var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return ((long) (earthRadiusKm * c)) + 1;
+        return ((long) (earthRadiusKm * c));
     }
 
     public User getUserById(UUID id) {
@@ -105,7 +110,7 @@ public class UserService {
     }
 
     public List<User> getUsers() {
-        return BookHunterApplication.users;
+        return userRepository.findAll();
     }
 
     public void createUser(UUID id, String nick, String name, long age, User.Gender gender, double latitude,
@@ -115,6 +120,12 @@ public class UserService {
             return;
         }
 
+        User user = constructUser(id, nick, name, age, gender, latitude, longitude);
+        getUsers().add(user);
+    }
+
+    public static User constructUser(UUID id, String nick, String name, long age, User.Gender gender, double latitude,
+                                     double longitude) {
         User user = new User();
         user.setId(id);
         user.setNick(nick);
@@ -123,7 +134,7 @@ public class UserService {
         user.setGender(gender);
         user.setLatitude(latitude);
         user.setLongitude(longitude);
-        getUsers().add(user);
+        return user;
     }
 
     public void updateUser(User user) {
@@ -137,19 +148,7 @@ public class UserService {
     }
 
     public void deleteUser(UUID id) {
-        List<User> users = getUsers();
-        int i = -1;
-        for (int j = 0; j < users.size(); j++) {
-            if (users.get(j).getId() == id) {
-                i = j;
-                break;
-            }
-        }
-        if (i == -1) {
-            System.out.println("No such user");
-            return;
-        }
-        users.remove(i);
+        getUsers().removeIf(u -> u.getId().equals(id));
     }
 
 
